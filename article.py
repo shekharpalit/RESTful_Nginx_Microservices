@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 #insert articles
 @app.route('/article',methods = ['POST'])
+#remove requires auth while installing the nginx and this line also
 @requires_auth
 def insertarticle():
     if request.method == 'POST':
@@ -34,7 +35,7 @@ def insertarticle():
             print("Error")
         finally:
             if executionState:
-                return jsonify(message="Data Instersted Sucessfully"), 201
+                return jsonify(message="Data Inserted Sucessfully"), 201
             else:
                 return jsonify(message="Failed to insert data"), 409
 
