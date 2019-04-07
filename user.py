@@ -3,7 +3,7 @@ from passlib.apps import custom_app_context as pwd_context
 import sqlite3
 import datetime
 from authentication import check_auth,authenticate,requires_auth
-from DatabaseInstance import get_db
+from UserDatabaseInstance import get_db
 
 app = Flask(__name__)
 

@@ -3,7 +3,7 @@ from flask import jsonify
 import json
 import sqlite3
 from datetime import datetime
-from DatabaseInstance import get_db
+from TagsDatabaseInstance import get_db
 from authentication import *
 
 app = Flask(__name__)

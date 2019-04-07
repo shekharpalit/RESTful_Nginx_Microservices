@@ -4,7 +4,7 @@ import json
 from flask import g
 import sqlite3
 import datetime
-from DatabaseInstance import get_db
+from ArticleDatabaseInstance import get_db
 from authentication import *
 
 app = Flask(__name__)

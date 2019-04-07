@@ -2,7 +2,7 @@ from flask import Flask, request
 from flask import jsonify
 import json
 from datetime import datetime
-from DatabaseInstance import get_db
+from CommentsDatabaseInstance import get_db
 from authentication import *
 
 
