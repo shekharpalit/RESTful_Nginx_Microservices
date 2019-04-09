@@ -4,21 +4,19 @@ import json
 from flask import g
 import sqlite3
 import datetime
-from ArticleDatabaseInstance import get_db
-from authentication import *
+from DatabaseInstance import get_articledb
 
 app = Flask(__name__)
 
 #insert articles
 @app.route('/article',methods = ['POST'])
 #remove requires auth while installing the nginx and this line also
-@requires_auth
 def insertarticle():
     if request.method == 'POST':
         data = request.get_json(force = True)
         executionState:bool = False
         try:
-            cur = get_db().cursor()
+            cur = get_articledb().cursor()
             current_time= datetime.datetime.now()
             is_active_article=1
             uid = request.authorization["username"]
@@ -29,9 +27,9 @@ def insertarticle():
             cur.execute("UPDATE article set url=? where article_id=?",(url_article,last_inserted_row))
             if(cur.rowcount >=1):
                     executionState = True
-            get_db().commit()
+            get_articledb().commit()
         except:
-            get_db().rollback()
+            get_articledb().rollback()
             print("Error")
         finally:
             if executionState:
@@ -50,7 +48,7 @@ def latestArticle():
         article_id = request.args.get('article_id')
         metadata = request.args.get('metadata')
         executionState:bool = True
-        cur = get_db().cursor()
+        cur = get_articledb().cursor()
         print(metadata)
         try:
             if limit is not None :
@@ -82,7 +80,7 @@ def latestArticle():
                 return jsonify(row), 200
 
         except:
-            get_db().rollback()
+            get_articledb().rollback()
             executionState = False
         finally:
             if executionState == False:
@@ -93,11 +91,10 @@ def latestArticle():
 # update article
 
 @app.route('/article',methods = ['PUT'])
-@requires_auth
 def updateArticle():
     if request.method == 'PUT':
         executionState:bool = False
-        cur = get_db().cursor()
+        cur = get_articledb().cursor()
         try:
             data = request.get_json(force = True)
 
@@ -110,11 +107,11 @@ def updateArticle():
                 cur.execute("UPDATE article set content=?,date_modified=? where article_id=? and author =?", (data['content'],tmod,data['article_id'], uid))
                 if(cur.rowcount >=1):
                     executionState = True
-                get_db().commit()
+                get_articledb().commit()
             else:
                 return jsonify(message="Article does not exist"), 409
         except:
-            get_db().rollback()
+            get_articledb().rollback()
             print("Error in update")
         finally:
             if executionState:
@@ -127,7 +124,7 @@ def updateArticle():
 @app.route('/article', methods = ['DELETE'])
 def deleteArticle():
     if request.method == 'DELETE':
-        cur = get_db().cursor()
+        cur = get_articledb().cursor()
         executionState:bool = False
         try:
             data = request.get_json(force=True)
@@ -140,10 +137,10 @@ def deleteArticle():
                 row = cur.fetchall()
                 if cur.rowcount >= 1:
                     executionState = True
-                get_db().commit()
+                get_articledb().commit()
 
         except:
-            get_db().rollback()
+            get_articledb().rollback()
             print("Error")
         finally:
             if executionState:

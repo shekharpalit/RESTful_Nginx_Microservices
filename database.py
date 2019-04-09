@@ -3,7 +3,7 @@ from sqlite3 import Error
 
 conn = sqlite3.connect('./article.db', timeout=10)
 conn.execute('CREATE TABLE if not exists article (article_id INTEGER PRIMARY KEY NOT NULL, title TEXT, author INTEGER NOT NULL, content TEXT NOT NULL, is_active_article TEXT, date_created INTEGER, date_modified INTEGER, url TEXT)')
-if print("Successfully created article database")
+print("Successfully created article database")
 conn.close()
 
 conn = sqlite3.connect('./comments.db', timeout=10)

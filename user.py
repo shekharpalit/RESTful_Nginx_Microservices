@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify, g, Response
 from passlib.apps import custom_app_context as pwd_context
 import sqlite3
 import datetime
-from authentication import check_auth,authenticate,requires_auth
-from UserDatabaseInstance import get_db
+from DatabaseInstance import get_userdb
 
 app = Flask(__name__)
 
@@ -15,7 +14,7 @@ app = Flask(__name__)
 def InsertUser():
     if request.method == 'POST':
         executionState:bool = False
-        cur = get_db().cursor()
+        cur = get_userdb().cursor()
         data =request.get_json(force= True)
         try:
             date_created = datetime.datetime.now()
@@ -25,10 +24,10 @@ def InsertUser():
             {"user_name":data['user_name'], "hashed_password":hash_password, "full_name":data['full_name'], "email_id":data['email_id'], "date_created":date_created,"is_active":is_active})
             if(cur.rowcount >=1):
                 executionState = True
-            get_db().commit()
+            get_userdb().commit()
 
         except:
-            get_db().rollback()
+            get_userdb().rollback()
             print("Error")
         finally:
             if executionState:
@@ -39,11 +38,11 @@ def InsertUser():
 #update user
 
 @app.route('/user', methods=['PATCH'])
-@requires_auth
+
 def UpdateUser():
     if request.method == 'PATCH':
         executionState:bool = False
-        cur = get_db().cursor()
+        cur = get_userdb().cursor()
         try:
             data  = request.get_json(force=True)
             uid = request.authorization["username"]
@@ -52,9 +51,9 @@ def UpdateUser():
             cur.execute("UPDATE users SET hashed_password=? WHERE user_name=? AND EXISTS(SELECT 1 FROM users WHERE user_name=? AND is_active=1)", (hash_password, uid,uid))
             if(cur.rowcount >=1):
                 executionState = True
-                get_db().commit()
+                get_userdb().commit()
         except:
-            get_db().rollback()
+            get_userdb().rollback()
             print("Error")
         finally:
             if executionState:
@@ -66,11 +65,11 @@ def UpdateUser():
 #delete user
 
 @app.route('/user', methods=['DELETE'])
-@requires_auth
+
 def DeleteUser():
     if request.method =="DELETE":
         executionState:bool = False
-        cur = get_db().cursor()
+        cur = get_userdb().cursor()
         try:
             uid = request.authorization["username"]
             pwd = request.authorization["password"]
@@ -78,10 +77,10 @@ def DeleteUser():
 
             if cur.rowcount >= 1:
                 executionState = True
-            get_db().commit()
+            get_userdb().commit()
 
         except:
-            get_db().rollback()
+            get_userdb().rollback()
             print("Error")
         finally:
             if executionState:
