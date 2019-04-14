@@ -21,6 +21,18 @@ def getArticlesFromTag():
         else:
             return jsonify(row), 200
 
+@app.route('/tagsgrouped',methods = ['GET'])
+def getTagsgrouped():
+    if request.method == 'GET':
+        data = request.args.get('tag')
+        cur = get_tagsdb().cursor()
+        cur.execute("Select  article_id, group_concat(tag_name) as tag_name from tags group by article_id order by article_id",)
+        row = cur.fetchall()
+        if len(row) ==0:
+            return "No articles containing the tags", 204
+        else:
+            return jsonify(row), 200
+
 #get tags from the url utility
 @app.route('/tags/<string:article_id>',methods = ['GET'])
 def getTagsFromArticle(article_id):
@@ -133,4 +145,4 @@ def deleteTagFromArticle():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5002)
