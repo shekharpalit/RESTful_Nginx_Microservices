@@ -14,31 +14,22 @@ def getArticlesFromTag():
     if request.method == 'GET':
         data = request.args.get('tag')
         cur = get_tagsdb().cursor()
-        cur.execute("Select * from article where article_id IN(Select article_id from tag_article_mapping where tag_id in (Select tag_id from tags WHERE tag_name =:tag_name ))", {"tag_name":data})
-        row = cur.fetchall()
-        if len(row) ==0:
+        cur.execute("Select article_id from tags WHERE tag_name = :tag_name ", {"tag_name":data})
+        articlesList = cur.fetchall()
+        if len(articlesList) ==0:
             return "No articles containing the tags", 204
         else:
-            return jsonify(row), 200
-
-@app.route('/tagsgrouped',methods = ['GET'])
-def getTagsgrouped():
-    if request.method == 'GET':
-        data = request.args.get('tag')
-        cur = get_tagsdb().cursor()
-        cur.execute("Select  article_id, group_concat(tag_name) as tag_name from tags group by article_id order by article_id",)
-        row = cur.fetchall()
-        if len(row) ==0:
-            return "No articles containing the tags", 204
-        else:
-            return jsonify(row), 200
+            #fetch the urls of articles with list of result of article_ids
+            cur.execute("Select url from article WHERE article_id IN :articles", {"articles":articlesList})
+            urlList = cur.fetchall()
+            return jsonify(urlList), 200
 
 #get tags from the url utility
 @app.route('/tags/<string:article_id>',methods = ['GET'])
 def getTagsFromArticle(article_id):
     if request.method == 'GET':
         cur = get_tagsdb().cursor()
-        cur.execute("SELECT tag_name from tags WHERE tag_id IN (SELECT tag_id from tag_article_mapping WHERE article_id=:article_id )", {"article_id":article_id})
+        cur.execute("SELECT tag_name from tags WHERE article_id= :article_id ", {"article_id":article_id})
         row = cur.fetchall()
         return jsonify(row), 200
 
@@ -49,22 +40,14 @@ def addTagstoArticle():
     if request.method == 'POST':
         data = request.get_json(force=True)
         executionState:bool = False
-        print(str(data))
         cur = get_tagsdb().cursor()
         try:
             #check if tag exists or not
             #check if the article exists or not
-            cur.execute("SELECT * FROM article WHERE article_id=:article_id",{"article_id":data['article_id']})
-            articleExists = cur.fetchall()
-            if articleExists != ():
-                cur.execute("INSERT INTO tags(tag_name) VALUES (:tag_name)",{"tag_name": data['tag_name']})
-                tag_id = cur.lastrowid
-                cur.execute("INSERT INTO tag_article_mapping(tag_id, article_id) VALUES(:tag_id, :article_id) ",{"tag_id":tag_id,"article_id":data['article_id']})
+                cur.execute("INSERT INTO tags(tag_name, article_id) VALUES (:tag_name, :article_id)",{"tag_name": data['tag_name'],"article_id": data['article_id']})
                 if (cur.rowcount >=1):
                     executionState =True
                 get_tagsdb().commit()
-            if articleExists ==():
-                return jsonify(message="Article does not exist"), 204
         except:
             get_tagsdb().rollback()
             print("Error")
@@ -82,24 +65,14 @@ def addTagsToExistingArticle():
     if request.method == 'PUT':
         data = request.get_json(force=True)
         tags =data['tags']
+        article_id =data['article_id']
         #return 204 if not found
-        print(tags)
         executionState:bool = False
         try:
             for tag in tags:
                     cur = get_tagsdb().cursor()
-                    cur.execute("SELECT tag_id FROM tags WHERE tag_name=:tag_name",{"tag_name":tag})
-                    result = cur.fetchone()
-                    if str(result)!="None":
-                        tag_id =str(result[0])
-                        #add the new tag here
-                        #insert the relation if not exists
-                        cur.execute("INSERT INTO tag_article_mapping(tag_id, article_id) SELECT (:tag_id),(:article_id) WHERE NOT EXISTS(SELECT 1 FROM tag_article_mapping WHERE tag_id= :tag_id  AND article_id = :article_id)", {"tag_id":tag_id, "article_id":data['article_id']})
-                    elif str(result)=="None":
+                    cur.execute("INSERT INTO tags(tag_name, article_id) VALUES( :tag_name, :article_id )",{"tag_name":tag, "article_id":article_id})
 
-                        cur.execute("INSERT INTO tags(tag_name) VALUES( :tag_name )",{"tag_name":tag})
-                        new_tag_inserted_id =cur.lastrowid
-                        cur.execute("INSERT INTO tag_article_mapping (tag_id, article_id) VALUES (:tag_id, :article_id)",{"tag_id":new_tag_inserted_id,"article_id":data['article_id']})
             if (cur.rowcount >=1):
                 executionState =True
             get_tagsdb().commit()
@@ -124,14 +97,10 @@ def deleteTagFromArticle():
         executionState:bool = False
         cur = get_tagsdb().cursor()
         try:
-            cur.execute("SELECT article_id FROM article WHERE article_id=:article_id",{"article_id":data['article_id']})
-            result = cur.fetchone()
-            if str(result)!="None":
-                #check if tag name exists or not
-                cur.execute("DELETE from tag_article_mapping where tag_id IN ( Select tag_id from tags WHERE tag_name =:tag_name) AND article_id=:article_id",{"tag_name":data['tag_name'],"article_id":data['article_id']})
-                #check for query result
-                if (cur.rowcount >=1):
-                    executionState =True
+            cur.execute("DELETE from tags where article_id= :article_id and tag_name= :tag_name ",{"tag_name":data['tag_name'],"article_id":data['article_id']})
+            #check for query result
+            if (cur.rowcount >=1):
+                executionState =True
                 get_tagsdb().commit()
         except:
             get_tagsdb().rollback()
@@ -145,4 +114,4 @@ def deleteTagFromArticle():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    app.run(debug=True)

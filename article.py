@@ -49,7 +49,7 @@ def latestArticle():
         metadata = request.args.get('metadata')
         executionState:bool = True
         cur = get_articledb().cursor()
-        print(metadata)
+
         try:
             if limit is not None :
                 cur.execute("select * from article  where is_active_article = 1 order by date_created desc limit :limit",  {"limit":limit})
@@ -59,21 +59,21 @@ def latestArticle():
                 return jsonify(row), 200
 
             if limit is None and article_id is None and metadata is None:
-                cur.execute('''Select * from article''')
+                cur.execute('''Select * from article where is_active_article=1''')
                 row = cur.fetchall()
                 if list(row) == []:
                     return "No such value exists\n", 204
                 return jsonify(row), 200
 
             if article_id is not None:
-                cur.execute("SELECT * from  article WHERE article_id="+article_id)
+                cur.execute("SELECT * from  article WHERE is_active_article=1 and article_id="+article_id)
                 row = cur.fetchall()
                 if list(row) == []:
                     return "No such value exists\n", 204
                 return jsonify(row), 200
 
             if metadata is not None:
-                cur.execute("select title,author,date_created,date_modified from article  where is_active_article = 1 order by date_created desc limit :metadata", {"metadata":metadata})
+                cur.execute("select title,author,date_created,url from article  where is_active_article = 1 order by date_created desc limit :metadata", {"metadata":metadata})
                 row = cur.fetchall()
                 if list(row) == []:
                     return "No such value exists\n", 204
@@ -104,7 +104,7 @@ def updateArticle():
             cur.execute("select * from article where article_id=?",(data['article_id'],))
             res=cur.fetchall()
             if len(res) >0:
-                cur.execute("UPDATE article set content=?,date_modified=? where article_id=? and author =?", (data['content'],tmod,data['article_id'], uid))
+                cur.execute("UPDATE article set title=?, content=?,date_modified=? where article_id=? and author =?", (data['title'],data['content'],tmod,data['article_id'], uid))
                 if(cur.rowcount >=1):
                     executionState = True
                 get_articledb().commit()
@@ -151,4 +151,4 @@ def deleteArticle():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5003)
+    app.run(debug=True)
