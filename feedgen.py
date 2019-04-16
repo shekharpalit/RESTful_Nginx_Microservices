@@ -5,7 +5,7 @@ import sqlite3
 import requests
 import datetime
 from rfeed import *
-import xml.dom.minidom
+
 
 app = Flask(__name__)
 
@@ -111,9 +111,6 @@ def getTagsFeed():
     lastBuildDate = datetime.datetime.now(),
     items = listOfArticle)
     resultXML = feed.rss()
-    dom = xml.dom.minidom.parse(resultXML)
-    pretty_xml_as_string = dom.toprettyxml()
-    print(pretty_xml_as_string)
     return resultXML, 200
 
 
