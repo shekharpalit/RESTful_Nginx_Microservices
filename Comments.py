@@ -6,6 +6,22 @@ from DatabaseInstance import get_commentsdb
 
 app = Flask(__name__)
 
+@app.route('/commentscount/<string:article_id>',methods = ['GET'])
+def getCommentcount(article_id):
+    if request.method == 'GET':
+        cur = get_commentsdb().cursor()
+        cur.execute("Select  count(comment) as comment from comments where article_id= :article_id",{"article_id":article_id})
+        row = cur.fetchall()
+        return jsonify(row), 200
+
+@app.route('/commentsOfArticle/<string:article_id>',methods = ['GET'])
+def getCommentofEachArticle(article_id):
+    if request.method == 'GET':
+        cur = get_commentsdb().cursor()
+        cur.execute("Select  group_concat(comment) from comments where article_id= :article_id group by article_id order by comment_id desc limit 10",{"article_id":article_id})
+        row = cur.fetchall()
+        return jsonify(row), 200
+
 
 #Add comments to the database
 @app.route('/comment', methods = ['POST'])
@@ -19,9 +35,9 @@ def AddComment():
             pwd = request.authorization["password"]
             time_created = datetime.now()
             cur.execute("INSERT INTO comments (comment, user_name, article_id, timestamp) VALUES (:comment, :user_name,:article_id, :timestamp) ",{"comment":data['comment'], "user_name":uid, "article_id":data['article_id'], "timestamp": time_created})
-                if cur.rowcount >= 1:
-                    executionState = True
-                    get_commentsdb().commit()
+            if (cur.rowcount >= 1):
+                executionState = True
+                get_commentsdb().commit()
         except:
             get_commentsdb().rollback()   #if it fails to execute rollback the database
             executionState = False
@@ -45,7 +61,7 @@ def deleteComment():
             pwd = request.authorization["password"]
             if row[0][0] == uid:
                 cur.execute("DELETE from comments WHERE user_name=? AND comment_id=?",(uid,data))
-                if cur.rowcount >= 1:
+                if (cur.rowcount >= 1):
                     executionState = True
                 get_commentsdb().commit()
         except:
@@ -106,7 +122,7 @@ def UpdateComments():
             pwd = request.authorization["password"]
             if row[0][0] == uid:
                 cur.execute("UPDATE comments set comment = ?,timestamp=? where user_name =? AND comment_id =?",  (data['comment'],timeCreated, uid, data['comment_id']))
-                if cur.rowcount >= 1:
+                if (cur.rowcount >= 1):
                     executionState = True
                 get_commentsdb().commit()
         except:
@@ -120,4 +136,4 @@ def UpdateComments():
                 return jsonify(message="Fail"), 409
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5004)

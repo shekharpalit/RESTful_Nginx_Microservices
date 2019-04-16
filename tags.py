@@ -24,6 +24,15 @@ def getArticlesFromTag():
             urlList = cur.fetchall()
             return jsonify(urlList), 200
 
+@app.route('/tagsgrouped',methods = ['GET'])
+def getTagsgrouped():
+    if request.method == 'GET':
+        data = request.args.get('tag')
+        cur = get_tagsdb().cursor()
+        cur.execute("Select  article_id, group_concat(tag_name) as tag_name from tags group by article_id order by article_id",)
+        row = cur.fetchall()
+        return jsonify(row), 200
+
 #get tags from the url utility
 @app.route('/tags/<string:article_id>',methods = ['GET'])
 def getTagsFromArticle(article_id):
@@ -33,6 +42,14 @@ def getTagsFromArticle(article_id):
         row = cur.fetchall()
         return jsonify(row), 200
 
+#get tags from the url utility
+@app.route('/tags/grouped/<string:article_id>',methods = ['GET'])
+def getTagsFromArticleID(article_id):
+    if request.method == 'GET':
+        cur = get_tagsdb().cursor()
+        cur.execute("SELECT group_concat(tag_name) as tag_name from tags WHERE article_id= :article_id ", {"article_id":article_id})
+        row = cur.fetchall()
+        return jsonify(row), 200
 
 @app.route('/tags', methods = ['POST'])
 
@@ -114,4 +131,4 @@ def deleteTagFromArticle():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5002)
