@@ -1,6 +1,6 @@
 ---
 
-test_name: Create a user
+test_name: Create a user.
 
 stages:
   - name: Make sure that new user has unique emailID than ones in the database
@@ -10,7 +10,7 @@ stages:
       json:
         user_name: shekharpalit
         hashed_password: shekhar1
-        full_name: shekhar
+        full_name: shekhar palit
         email_id: shekhar@csu.fullerton.edu
       method: POST
       headers:
