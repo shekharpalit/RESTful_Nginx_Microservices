@@ -20,9 +20,9 @@ def getArticlesFromTag():
             return "No articles containing the tags", 204
         else:
             #fetch the urls of articles with list of result of article_ids
-            cur.execute("Select url from article WHERE article_id IN :articles", {"articles":articlesList})
-            urlList = cur.fetchall()
-            return jsonify(urlList), 200
+            #cur.execute("Select url from article WHERE article_id IN :articles", {"articles":articlesList})
+            #urlList = cur.fetchall()
+            return jsonify(articlesList), 200
 
 @app.route('/tagsgrouped',methods = ['GET'])
 def getTagsgrouped():

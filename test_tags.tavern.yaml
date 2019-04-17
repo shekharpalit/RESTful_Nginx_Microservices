@@ -4,14 +4,14 @@
   stages:
     - name: Adding an article with a new tag
       request:
-        url: http://localhost:5300/tags
+        url: http://localhost/tags
         json:
           article_id: 2
-          tag_name: '#bigwuxuddddz44'
+          tag_name: '#csuf101'
         method: POST
         auth:
-          - parag
-          - bhingre
+          - Shekhar__
+          - ab
 
         headers:
           content-type: application/json
@@ -24,7 +24,7 @@
   stages:
     - name: the list of article should be returned
       request:
-        url: 'http://localhost:5300/tags?tag=%23bigwest'
+        url: 'http://localhost/tags?tag=%23csuf101'
         method: GET
       response:
         status_code: 200
@@ -36,15 +36,15 @@
   stages:
     - name: Add another tag to the article
       request:
-         url: http://127.0.0.1:5300/tags
+         url: http://localhost/tags
          method: PUT
          auth:
-           - parag
-           - bhingre
+           - Shekhar__
+           - ab
 
          json:
            article_id: 2
-           tags: ["#tesawoooxscdd43","#sacvoddoovvvv"]
+           tags: ["#orange1","#fullerton1"]
          headers:
            content-type: application/json
       response:
@@ -56,15 +56,15 @@
     stages:
       - name: delete the tags related to article
         request:
-          url: http://127.0.0.1:5300/tags
+          url: http://localhost/tags
           method: DELETE
           auth:
-            - parag
-            - bhingre
+            - Shekhar__
+            - ab
 
           json:
-            article_id: 7
-            tag_name: '#testHagtag63'
+            article_id: 2
+            tag_name: '#csuf101'
           headers:
             content-type: application/json
         response:
@@ -75,15 +75,15 @@
   stages:
     - name: delete tags of article that does not exists
       request:
-        url: http://127.0.0.1:5300/tags
+        url: http://localhost/tags
         method: DELETE
         auth:
-          - parag
-          - bhingre
+          - Shekhar__
+          - ab
 
         json:
-          article_id: 70
-          tag_name: '#testHagtag1'
+          article_id: 79
+          tag_name: '#testHashtag1'
         headers:
           content-type: application/json
       response:

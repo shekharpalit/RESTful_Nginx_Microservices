@@ -3,7 +3,7 @@
   stages:
   - name: Posting an article without authenticating
     request:
-      url: http://localhost:5200/article
+      url: http://localhost/article
       json:
         title: web back end
         content: This is the body of article1
@@ -18,12 +18,12 @@
   stages:
   - name: Password is incorrect.
     request:
-      url: http://localhost:5200/article
+      url: http://localhost/article
       method: POST
       auth:
-        - parag
-        - bhingre11
-        
+        - Shekhar__
+        - xyz
+
       json:
         title: web back end
         content: This is the body of article
@@ -36,11 +36,11 @@
   stages:
   - name: New article posted.
     request:
-      url: http://localhost:5200/article
+      url: http://localhost/article
       method: POST
       auth:
-        - parag
-        - bhingre
+        - Shekhar__
+        - ab
       json:
         title: web back end1111111
         content: This is the body of article
@@ -55,10 +55,10 @@
   stages:
     - name: Retrieved the article.
       request:
-        url: http://localhost:5200/article?limit=1
+        url: http://localhost/article?limit=1
         auth:
-          - parag
-          - bhingre
+          - Shekhar__
+          - ab
 
         method: GET
       response:
@@ -69,7 +69,7 @@
   stages:
     - name: Check recent article.
       request:
-        url: http://localhost:5200/article
+        url: http://localhost/article
         method: GET
         headers:
           content-type: application/json

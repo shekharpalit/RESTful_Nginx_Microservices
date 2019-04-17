@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 @app.route('/rssfeed',methods = ['GET'])
 def getFeed():
-    r = requests.get('http://localhost:5003/article')
+    r = requests.get('http://localhost/article')
     jsonResponse = r.json()
     #print(jsonResponse)
     listOfArticle = list()
@@ -27,7 +27,7 @@ def getFeed():
 
     feed = Feed(
     title = "RSS Feed",
-    link = "http://localhost:5001/rssfeed",
+    link = "http://localhost:5400/rssfeed",
     description = "The description of rss feeds",
     language = "en-US",
     lastBuildDate = datetime.datetime.now(),
@@ -37,22 +37,22 @@ def getFeed():
 
 @app.route('/rssfullfeed',methods = ['GET'])
 def getSingleArticleFeed():
-    articleData = requests.get('http://localhost:5003/article')
+    articleData = requests.get('http://localhost/article')
     articleJsonResponse = articleData.json()
     listOfArticle = list()
 
     for i in articleJsonResponse:
         curr_index =i[0]
-        request_tag_url_string= "http://localhost:5002/tags/grouped/"+str(i[0])
+        request_tag_url_string= "http://localhost/tags/grouped/"+str(i[0])
         tagsData = requests.get(request_tag_url_string)
         tagsRecieved = tagsData.json()
-
-        if None in tagsRecieved[0]:
+        print(tagsRecieved)
+        if tagsRecieved == {}:
             tagsAsCategories =""
         else:
             tagsAsCategories =tagsRecieved[0]
 
-        request_comments_url_string= "http://localhost:5004/commentscount/"+str(i[0])
+        request_comments_url_string= "http://localhost/commentscount/"+str(i[0])
         commentCountData = requests.get(request_comments_url_string)
         commentCountRecieved = commentCountData.json()
         if None in commentCountRecieved[0]:
@@ -72,7 +72,7 @@ def getSingleArticleFeed():
 
     feed = Feed(
     title = "RSS Feed",
-    link = "http://localhost:5001/rssfullfeed",
+    link = "http://localhost:5400/rssfullfeed",
     description = "The description of rss feeds",
     language = "en-US",
     lastBuildDate = datetime.datetime.now(),
@@ -82,12 +82,12 @@ def getSingleArticleFeed():
 
 @app.route('/rsscommentfeed',methods = ['GET'])
 def getTagsFeed():
-    articleData = requests.get('http://localhost:5003/article')
+    articleData = requests.get('http://localhost/article')
     articleJsonResponse = articleData.json()
     listOfArticle = list()
 
     for i in articleJsonResponse:
-        request_comments_url_string= "http://localhost:5004/commentsOfArticle/"+str(i[0])
+        request_comments_url_string= "http://localhost/commentsOfArticle/"+str(i[0])
         commentCountData = requests.get(request_comments_url_string)
         commentCountRecieved = commentCountData.json()
         if len(commentCountRecieved) is 0:
@@ -105,7 +105,7 @@ def getTagsFeed():
 
     feed = Feed(
     title = "RSS Feed",
-    link = "http://localhost:5001/rssfeed",
+    link = "http://localhost:5400/rssfeed",
     description = "The description of rss feeds",
     language = "en-US",
     lastBuildDate = datetime.datetime.now(),

@@ -73,7 +73,7 @@ def DeleteUser():
         try:
             uid = request.authorization["username"]
             pwd = request.authorization["password"]
-            cur.execute("UPDATE users SET is_active =? WHERE user_name=? AND EXISTS(SELECT 1 FROM users WHERE user_name=? AND is_active=1)", (0,uid,uid))
+            cur.execute("DELETE FROM users where user_name= :user_name ", {"user_name":uid})
 
             if cur.rowcount >= 1:
                 executionState = True
